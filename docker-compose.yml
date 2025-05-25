@@ -1,0 +1,72 @@
+version: '3.8'
+services:
+  filestoringservice:
+    build:
+      context: .
+      dockerfile: FileStoringService/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5001
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=filesdb;Username=postgres;Password=postgres
+    volumes:
+      - files:/app/files
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+  fileanalysisservice:
+    build:
+      context: .
+      dockerfile: FileAnalysisService/Dockerfile
+    ports:
+      - "6002:6002"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:6002
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+  apigateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "5003:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    depends_on:
+      - filestoringservice
+      - fileanalysisservice
+    networks:
+      - backend
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MULTIPLE_DATABASES: filesdb,analysisdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-multiple-dbs.sh:/docker-entrypoint-initdb.d/init-multiple-dbs.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+volumes:
+  pgdata:
+  files:
+networks:
+  backend:
+    driver: bridge

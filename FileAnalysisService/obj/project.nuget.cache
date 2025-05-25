@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "k9zAmOU20R0=",
+  "success": true,
+  "projectFilePath": "/Users/matveipasynkov/Desktop/KPO_BDZ_2/FileAnalysisService/FileAnalysisService.csproj",
+  "expectedPackageFiles": [
+    "/Users/matveipasynkov/.nuget/packages/microsoft.aspnetcore.openapi/9.0.1/microsoft.aspnetcore.openapi.9.0.1.nupkg.sha512",
+    "/Users/matveipasynkov/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
